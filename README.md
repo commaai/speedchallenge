@@ -10,7 +10,7 @@ Your goal is to predict the speed of a car from a video.
 Deliverable
 -----
 
-Your deliverable is test.txt
+Your deliverable is test.txt. E-mail it to givemeajob@comma.ai, or if you think you did particularly well, e-mail it to George.
 
 Evaluation
 -----
