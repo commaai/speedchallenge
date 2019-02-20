@@ -4,10 +4,11 @@ from tensorflow.keras.layers import Input, Dense, Flatten, Conv3D, MaxPooling3D,
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import SGD
 
-batch_size = 16
-sequence_length = 4
+batch_size = 128
+sequence_length = 3
+epochs = 200
 
-cap = cv2.VideoCapture('data/train.mp4')
+cap = cv2.VideoCapture('./data/train.mp4')
 
 if (cap.isOpened()== False): 
   print("Error opening video stream or file")
@@ -18,10 +19,10 @@ video_size = int(cap.get(7))
 
 # Get the video dimensions, 3 is the ordinal value of CV_CAP_PROP_FRAME_WIDTH, 4 is CV_CAP_PROP_FRAME_HEIGHT
 # Also resize them because these images are too big
-width = int(cap.get(3) / 2)
-height = int(cap.get(4) / 2)
+width = int(cap.get(3) / 4)
+height = int(cap.get(4) / 4)
 
-gen = data_generator(cap, video_size, batch_size, sequence_length, (width, height), speeds='train.txt')
+gen = data_generator(cap, video_size, batch_size, sequence_length, (width,height), speeds='train.txt')
 
 # Will return a feature and label set.
 # Features are a list of image sequences in the form: (sequence_length, img_height, img_width, dimensions)
@@ -45,5 +46,5 @@ model.compile(SGD(0.01,momentum=0.9),loss='mean_squared_error')
 
 print(model.summary())
 
-history = model.fit_generator(gen,steps_per_epoch=int(video_size/batch_size),epochs=1,verbose=True)
+history = model.fit_generator(gen,steps_per_epoch=int(video_size/batch_size),epochs=epochs,verbose=True)
 

@@ -1,3 +1,4 @@
+import cv2
 cap = cv2.VideoCapture('data/train.mp4')
 
 if (cap.isOpened()== False): 
