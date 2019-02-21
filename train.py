@@ -3,13 +3,21 @@ from generator import data_generator
 from tensorflow.keras.layers import Input, Dense, Flatten, Conv3D, MaxPooling3D, MaxPooling2D, BatchNormalization
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import SGD, RMSprop
+from opticalflow import denseflow
+import numpy as np
 
 batch_size = 32
 sequence_length = 2
 epochs = 200
+split = .9
 
+print("Processing speeds.")
+with open('data/train.txt') as f:
+	speeds = f.readlines()
+	speeds = np.array([float(x.strip()) for x in speeds]) 
+
+print("Processing video.")
 cap = cv2.VideoCapture('./data/train.mp4')
-
 if (cap.isOpened()== False): 
   print("Error opening video stream or file")
   exit()
@@ -21,10 +29,13 @@ video_size = int(cap.get(7))
 # Also resize them because these images are too big
 width = int(cap.get(3) / 4)
 height = int(cap.get(4) / 4)
+video = denseflow(cap, video_size, (width,height))
+cap.release()
 
-gen = data_generator(cap, video_size, batch_size, sequence_length, (width,height), speeds='train.txt')
+train_gen = data_generator(video[:int(video_size*split)], speeds[:int(video_size*split)], batch_size, sequence_length)
+val_gen = data_generator(video[int(video_size*split):], speeds[int(video_size*split):], batch_size, sequence_length)
 
-# Will return a feature and label set.
+# Will return a feature and label set.	
 # Features are a list of image sequences in the form: (sequence_length, img_height, img_width, dimensions)
 inputs = Input((sequence_length,height,width,3))
 
@@ -46,5 +57,11 @@ model.compile(RMSprop(),loss='mean_squared_error')
 
 print(model.summary())
 
-history = model.fit_generator(gen,steps_per_epoch=int(video_size/batch_size),epochs=epochs,verbose=True)
+history = model.fit_generator(
+	train_gen, 
+	steps_per_epoch=int(video_size*split/batch_size), 
+	validation_data=val_gen, 
+	validation_steps=int(video_size*(1-split)/batch_size),
+	epochs=epochs,
+	verbose=True)
 
