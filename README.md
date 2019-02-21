@@ -22,3 +22,10 @@ Twitter
 
 <a href="https://twitter.com/comma_ai">Follow us!</a>
 
+###Ideas
+
+Train the network normally, but use the same technique as adversarial autoencoder to shape the latent space just before prediction
+Then, use our output from the discriminator and normalize it somehow and then generate the next picture using the speed
+
+Train it with one frame from the future
+Use an Autoencoder to predict the next frame for test file

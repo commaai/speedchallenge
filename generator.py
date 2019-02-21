@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import random
-
+from opticalflow import denseflow
 
 '''
 A Generator that produces sets of training features and labels
@@ -14,6 +14,7 @@ A Generator that produces sets of training features and labels
 '''
 def data_generator(cap, size, batch_size, sequence_length, shape,speeds=None):
 	# Initialize speed data
+	print("Processing speeds")
 	if speeds != None:
 		with open('data/train.txt') as f:
 			speeds = f.readlines()
@@ -21,10 +22,10 @@ def data_generator(cap, size, batch_size, sequence_length, shape,speeds=None):
 	else:
 		speeds = np.empty(size)
 
-	if (cap.isOpened()== False): 
-		print("Error opening video stream or file")
-		exit()
+	print("Processing video")
+	video = denseflow(cap, size, shape)
 
+	'''
 	video = np.zeros((size,shape[1],shape[0],3))
 		# Read until video is completed
 	for i in range(size):
@@ -32,7 +33,7 @@ def data_generator(cap, size, batch_size, sequence_length, shape,speeds=None):
 		ret, frame = cap.read()
 		if ret is True:
 			video[i] = cv2.resize(frame,shape) / 255
-
+	'''
 	cap.release()
 
 	while True:
