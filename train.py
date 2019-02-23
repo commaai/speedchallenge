@@ -76,10 +76,6 @@ model.compile(RMSprop(),loss='mean_squared_error')
 
 print(model.summary())
 
-plt.plot(speeds)
-plt.plot(model.predict_generator(pred_gen, steps=video_size-sequence_length))
-plt.show()
-
 history = model.fit_generator(
 	train_gen, 
 	steps_per_epoch=int(video_size*split/batch_size), 
@@ -88,3 +84,6 @@ history = model.fit_generator(
 	epochs=epochs,
 	verbose=True)
 
+plt.plot(speeds)
+plt.plot(model.predict_generator(pred_gen, steps=video_size-sequence_length))
+plt.show()
