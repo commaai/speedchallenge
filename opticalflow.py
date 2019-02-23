@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import time
+from os.path import splitext
 
 def denseflow(cap, size, resize_factor):
     ret, frame1 = cap.read()
@@ -32,7 +33,7 @@ def denseflow(cap, size, resize_factor):
         prvs = next
         fcount += 1
 
-    return frames
+    return frames[1:]
 
 def lkflow():
     cap = cv.VideoCapture('data/train.mp4')
@@ -56,6 +57,7 @@ def lkflow():
     fcount = 0
     t = time.time()
     while(1):
+
         if fcount != 0 and fcount % 20 == 0:
             print("Avg fps: ", 20 / (time.time() - t))
             t = time.time()
@@ -111,3 +113,26 @@ def denseflow_show():
         prvs = next
     cap.release()
     cv.destroyAllWindows()
+
+def denseflow_write(fname):
+    cap = cv.VideoCapture(fname)
+    if cap.isOpened() == False:
+        print("Could not open video file ", fname)
+        exit()
+
+    # Get the number of frames, 7 is the ordinal value of CV_CAP_PROP_FRAME_COUNT
+    video_size = int(cap.get(7))
+
+    # Get the video dimensions, 3 is the ordinal value of CV_CAP_PROP_FRAME_WIDTH, 4 is CV_CAP_PROP_FRAME_HEIGHT
+    # Also resize them because these images are too big
+    width = int(cap.get(3) / 4)
+    height = int(cap.get(4) / 4)
+
+    video = denseflow(cap, video_size, (width,height))
+
+    f, ext = splitext(fname)
+    np.save(f+'_op', video)
+
+    cap.release()
+    return video
+#denseflow_write('./data/train.mp4')

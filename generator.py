@@ -22,3 +22,10 @@ def data_generator(video, speeds, batch_size, sequence_length):
 				x.append(video[frame_num-sequence_length:frame_num])
 				y.append(speeds[frame_num])
 			yield np.array(x), np.array(y)
+
+def prediction_generator(video, sequence_length):
+	i = 0
+	while True:
+
+		yield np.array([video[i:i+sequence_length]])
+		i += 1
