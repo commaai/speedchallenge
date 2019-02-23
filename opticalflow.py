@@ -131,7 +131,7 @@ def denseflow_write(fname):
     video = denseflow(cap, video_size, (width,height))
 
     f, ext = splitext(fname)
-    np.save(f+'_op', video)
+    np.savez(f+'_op', video)
 
     cap.release()
     return video
