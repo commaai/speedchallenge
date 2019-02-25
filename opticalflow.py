@@ -3,7 +3,8 @@ import numpy as np
 import time
 from os.path import splitext
 
-def denseflow(cap, size, resize_factor):
+def denseflow(cap, resize_factor):
+    size = int(cap.get(7))
     ret, frame1 = cap.read()
     frame1 = cv.resize(frame1,resize_factor)
     prvs = cv.cvtColor(frame1,cv.COLOR_BGR2GRAY)
@@ -17,9 +18,6 @@ def denseflow(cap, size, resize_factor):
     t = time.time()
 
     while(1):
-        if fcount % 20 == 0 and False:
-            print("Avg fps: ", 20 / (time.time() - t))
-            t = time.time()
         ret, frame2 = cap.read()
         if not ret:
             break
@@ -32,7 +30,7 @@ def denseflow(cap, size, resize_factor):
         frames[fcount] = hsv
         prvs = next
         fcount += 1
-
+    np.savez("data/train_op", frames)
     return frames
 
 def lkflow():

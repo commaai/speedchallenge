@@ -5,30 +5,26 @@ from tensorflow.keras.layers import Input, Dense, Flatten, Conv3D, MaxPooling3D,
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import SGD, RMSprop
-from opticalflow import denseflow_write
+from opticalflow import denseflow
 from os.path import splitext
 import numpy as np
 
 batch_size = 16
 sequence_length = 5
-epochs = 20
+epochs = 1
 split = .85
-fname, ext = splitext('./data/train.mp4')
-
 
 print("Processing speeds.")
 with open('data/train.txt') as f:
 	speeds = f.readlines()
-	speeds = np.array([float(x.strip()) for x in speeds]) 
+	speeds = np.array([float(x.strip()) for x in speeds])
+	speeds = speeds
 
 print("Processing video.")
-cap = cv2.VideoCapture(fname+ext)
+cap = cv2.VideoCapture("data/train.mp4")
 if (cap.isOpened()== False): 
   print("Error opening video stream or file")
   exit()
-
-# Get the number of frames, 7 is the ordinal value of CV_CAP_PROP_FRAME_COUNT
-video_size = int(cap.get(7))
 
 # Get the video dimensions, 3 is the ordinal value of CV_CAP_PROP_FRAME_WIDTH, 4 is CV_CAP_PROP_FRAME_HEIGHT
 # Also resize them because these images are too big
@@ -40,15 +36,11 @@ try:
 		video = data['arr_0']
 except:
 	print("Could not find preprocessed video, creating it now")
-	video = denseflow_write(cap, fname)
+	video = denseflow(cap, (width,height))
+
+video_size = len(video)
 
 cap.release()
-print(video_size)
-print(len(video))
-
-#p = np.random.permutation(video_size)
-#video = video[p]
-#speeds = speeds[p]
 
 train_gen = data_generator(video[:int(video_size*split)], speeds[:int(video_size*split)], batch_size, sequence_length)
 val_gen = data_generator(video[int(video_size*split):], speeds[int(video_size*split):], batch_size, sequence_length)
@@ -83,6 +75,7 @@ x = Dense(32,activation=None)(x)
 x = LeakyReLU(alpha=0.1)(x)
 x = Dense(16,activation=None)(x)
 x = LeakyReLU(alpha=0.1)(x)
+
 outputs = Dense(1,activation=None)(x)
 #outputs = LeakyReLU(alpha=1.2)(x)
 model = Model(inputs=inputs,outputs=outputs) 
@@ -120,3 +113,4 @@ plt.ylabel('Speed in mph')
 plt.legend(['Predicted', 'Real'])
 plt.savefig(fname='./data/speedplot')
 #plt.show()
+
