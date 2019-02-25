@@ -33,7 +33,7 @@ def denseflow(cap, size, resize_factor):
         prvs = next
         fcount += 1
 
-    return frames[1:]
+    return frames
 
 def lkflow():
     cap = cv.VideoCapture('data/train.mp4')
@@ -114,12 +114,7 @@ def denseflow_show():
     cap.release()
     cv.destroyAllWindows()
 
-def denseflow_write(fname):
-    cap = cv.VideoCapture(fname)
-    if cap.isOpened() == False:
-        print("Could not open video file ", fname)
-        exit()
-
+def denseflow_write(cap, fname):
     # Get the number of frames, 7 is the ordinal value of CV_CAP_PROP_FRAME_COUNT
     video_size = int(cap.get(7))
 
@@ -133,6 +128,5 @@ def denseflow_write(fname):
     f, ext = splitext(fname)
     np.savez(f+'_op', video)
 
-    cap.release()
     return video
 #denseflow_write('./data/train.mp4')
