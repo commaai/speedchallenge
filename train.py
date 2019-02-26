@@ -1,4 +1,3 @@
-import cv2
 import matplotlib.pyplot as plt
 from generator import data_generator, prediction_generator
 from tensorflow.keras.layers import Input, Dense, Flatten, Conv3D, MaxPooling3D, MaxPooling2D, BatchNormalization, Dropout, LeakyReLU, PReLU
@@ -10,9 +9,9 @@ from os.path import splitext
 import numpy as np
 
 batch_size = 16
-sequence_length = 5
-epochs = 1
-split = .85
+sequence_length = 8
+epochs = 25
+split = .9
 
 print("Processing speeds.")
 with open('data/train.txt') as f:
@@ -21,26 +20,18 @@ with open('data/train.txt') as f:
 	speeds = speeds
 
 print("Processing video.")
-cap = cv2.VideoCapture("data/train.mp4")
-if (cap.isOpened()== False): 
-  print("Error opening video stream or file")
-  exit()
-
-# Get the video dimensions, 3 is the ordinal value of CV_CAP_PROP_FRAME_WIDTH, 4 is CV_CAP_PROP_FRAME_HEIGHT
-# Also resize them because these images are too big
-width = int(cap.get(3) / 4)
-height = int(cap.get(4) / 4)
-
+fname = "data/train.mp4"
 try:
-	with np.load(fname + '_op.npz') as data:
+	f, ext = splitext(fname)
+	with np.load(f + '_op.npz') as data:
 		video = data['arr_0']
 except:
 	print("Could not find preprocessed video, creating it now")
-	video = denseflow(cap, (width,height))
+	video = denseflow(fname, 4)
 
+width = video.shape[2]
+height = video.shape[1]
 video_size = len(video)
-
-cap.release()
 
 train_gen = data_generator(video[:int(video_size*split)], speeds[:int(video_size*split)], batch_size, sequence_length)
 val_gen = data_generator(video[int(video_size*split):], speeds[int(video_size*split):], batch_size, sequence_length)
@@ -52,32 +43,22 @@ inputs = Input((sequence_length,height,width,3))
 
 # A convolution being applied to each image seperately
 x = Conv3D(32,(1,3,3),strides=(1,2,2),activation=None)(inputs)
-x = PReLU()(x)
+x = LeakyReLU(alpha=0.1)(x)
 x = BatchNormalization()(x)
-x = Conv3D(32,(1,3,3),strides=(1,2,2),activation=None)(x)
-x = PReLU()(x)
+x = Conv3D(32,(3,3,3),strides=(2,2,2),activation=None)(x)
+x = LeakyReLU(alpha=0.1)(x)
 x = BatchNormalization()(x)
-x = Conv3D(32,(1,3,3),strides=(1,2,2),activation=None)(x) 
-x = PReLU()(x)
+x = Conv3D(32,(3,3,3),strides=(2,2,2),activation=None)(x)
+x = LeakyReLU(alpha=0.1)(x)
 x = BatchNormalization()(x)
-
-# A convolution across all images together
-x = Conv3D(32,(3,1,1),strides=(1,1,1),activation=None)(x)
-x = PReLU()(x)
-x = BatchNormalization()(x)
-x = Conv3D(16,(3,1,1),strides=(1,1,1),activation=None)(x)
-x = PReLU()(x)
-x = BatchNormalization()(x)
-#x = Conv3D(16,(3,2,2),strides=(1,2,2),activation='relu')(x)
 x = Flatten()(x)
-#x = Dropout(0.5)(x)
+x = Dropout(.5)(x)
+
 x = Dense(32,activation=None)(x)
 x = LeakyReLU(alpha=0.1)(x)
 x = Dense(16,activation=None)(x)
 x = LeakyReLU(alpha=0.1)(x)
-
 outputs = Dense(1,activation=None)(x)
-#outputs = LeakyReLU(alpha=1.2)(x)
 model = Model(inputs=inputs,outputs=outputs) 
 model.compile(RMSprop(),loss='mean_squared_error')
 
@@ -104,10 +85,11 @@ plt.legend(['Loss', 'Validation Loss'])
 plt.savefig(fname='./data/lossplot')
 #plt.show()
 
+plt.clf()
+
 # Plotting predicted speeds against real speeds
 plt.plot(model2.predict_generator(pred_gen, steps=video_size-sequence_length))
 plt.plot(speeds)
-plt.axvline(video_size*split)
 plt.xlabel('Frame')
 plt.ylabel('Speed in mph')
 plt.legend(['Predicted', 'Real'])
