@@ -124,20 +124,3 @@ def denseflow_show():
         prvs = next
     cap.release()
     cv.destroyAllWindows()
-
-def denseflow_write(cap, fname):
-    # Get the number of frames, 7 is the ordinal value of CV_CAP_PROP_FRAME_COUNT
-    video_size = int(cap.get(7))
-
-    # Get the video dimensions, 3 is the ordinal value of CV_CAP_PROP_FRAME_WIDTH, 4 is CV_CAP_PROP_FRAME_HEIGHT
-    # Also resize them because these images are too big
-    width = int(cap.get(3) / 4)
-    height = int(cap.get(4) / 4)
-
-    video = denseflow(cap, video_size, (width,height))
-
-    f, ext = splitext(fname)
-    np.savez(f+'_op', video)
-
-    return video
-#denseflow_write('./data/train.mp4')
