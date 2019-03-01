@@ -18,16 +18,13 @@ def data_generator(video, speeds, batch_size, sequence_length):
 			frame_num = random.randrange(sequence_length,len(video))
 
 			sequence = video[frame_num-sequence_length:frame_num]
-			
+			'''
 			flip = random.choice([True,False])
 			angle = random.uniform(-20,20)
 			scale = random.uniform(.8,1.2)
-
+			
 			for i, image in enumerate(sequence):
 				# Augmentation
-				if flip:
-					image = np.fliplr(image)
-
 				image = skimage.transform.rescale(image, scale=scale)
 				image = skimage.transform.resize(image, output_shape=sequence[i].shape, mode='constant')
 				image = skimage.transform.rotate(image, angle=angle)
@@ -38,7 +35,7 @@ def data_generator(video, speeds, batch_size, sequence_length):
 				#normalize input!
 				image = image / 255
 				sequence[i] = image
-
+			'''
 			x.append(sequence)
 			y.append(speeds[frame_num])
 		yield np.array(x), np.array(y)
