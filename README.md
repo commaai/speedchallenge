@@ -1,3 +1,8 @@
+Checkout our current challenge
+======
+[calib challenge](https://github.com/commaai/calib_challenge)
+
+
 Welcome to the comma.ai Programming Challenge!
 ======
 
