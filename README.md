@@ -1,9 +1,11 @@
-Checkout our current challenge
+:heavy_check_mark: Checkout our current challenges
 ======
-[calib challenge](https://github.com/commaai/calib_challenge)
+[calib challenge](https://github.com/commaai/calib_challenge) \
+[controls challenge](https://github.com/commaai/controls_challenge) \
+[harness tester challenge](https://github.com/commaai/harness_tester_challenge) \
+[operations challenge](https://github.com/commaai/operations_challenge)
 
-
-Welcome to the comma.ai Programming Challenge!
+:no_entry: [DEPRECATED] Welcome to the comma.ai Programming Challenge!
 ======
 
 Your goal is to predict the speed of a car from a video.
